@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Проверь свои знания</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Древнерусское государство<span>и Византия в X веке</span></h1>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="index.html">Введение</a></li>
+        <li><a href="rus-state.html">Древнерусское государство</a></li>
+        <li><a href="byzantium.html">Византийская империя</a></li>
+        <li><a href="relations.html">Отношения</a></li>
+        <li><a href="oleg.html">Поход Олега</a></li>
+        <li><a href="treaty911.html">Договор 911 года</a></li>
+        <li><a href="igor.html">Походы Игоря</a></li>
+        <li><a href="trade.html">Путь «из варяг в греки»</a></li>
+        <li><a href="christianity.html">Крещение Руси</a></li>
+        <li><a href="quiz.html" class="active">Проверь себя</a></li>
+    </ul>
+</nav>
+
+<main>
+    <h2>Исторический тест</h2>
+    
+    <div class="quiz-container">
+        <!-- Экран приветствия -->
+        <div id="start-screen">
+            <div class="content-box">
+                <h3>Готовы проверить свои знания?</h3>
+                <p>Этот тест состоит из 6 вопросов по материалам сайта. Выберите один правильный вариант ответа в каждом вопросе. Удачи!</p>
+            </div>
+            <button class="quiz-btn" onclick="startQuiz()">Начать тест</button>
+        </div>
+
+        <!-- Экран вопроса -->
+        <div id="quiz-screen" style="display: none;">
+            <div class="quiz-progress">
+                <div class="quiz-progress-bar" id="progress-bar"></div>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Вопрос <span id="current-q">1</span> из <span id="total-q">6</span></p>
+            
+            <div class="quiz-question" id="question-text"></div>
+            
+            <div class="quiz-options" id="options-container"></div>
+            
+            <div class="quiz-feedback" id="feedback"></div>
+            
+            <button class="quiz-btn" id="next-btn" onclick="nextQuestion()" disabled>Следующий вопрос</button>
+        </div>
+
+        <!-- Экран результатов -->
+        <div id="result-screen" style="display: none;">
+            <div class="content-box">
+                <h3>Тест завершён!</h3>
+                <div class="quiz-result-score" id="final-score">0 / 6</div>
+                <div class="quiz-result-message" id="result-message"></div>
+                <button class="quiz-btn" onclick="restartQuiz()">Пройти ещё раз</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>Древнерусское государство и Византия в X веке</p>
+    <p>Исторический образовательный сайт</p>
+</footer>
+
+<script>
+    // База данных вопросов
+    const questions = [
+        {
+            question: "В каком году произошло Крещение Руси князем Владимиром?",
+            options: ["862 год", "988 год", "911 год", "1054 год"],
+            correct: 1,
+            explanation: "Крещение Руси традиционно датируется 988 годом. Это событие стало поворотным в истории древнерусского государства."
+        },
+        {
+            question: "Какое секретное оружие использовали византийцы против флота князя Игоря в 941 году?",
+            options: ["Катапульты", "Отравленные стрелы", "Греческий огонь", "Подводные ловушки"],
+            correct: 2,
+            explanation: "«Греческий огонь» — это зажигательная смесь, которая горела даже на воде и наводила ужас на русские дружины."
+        },
+        {
+            question: "Какой князь, согласно летописи, повесил свой щит на вратах Царьграда?",
+            options: ["Рюрик", "Игорь", "Олег Вещий", "Святослав"],
+            correct: 2,
+            explanation: "В 907 году князь Олег Вещий совершил успешный поход на Константинополь и в знак победы прибил свой щит к воротам города."
+        },
+        {
+            question: "Как назывался главный торговый путь, соединявший Скандинавию и Византию через реки Восточной Европы?",
+            options: ["Шёлковый путь", "Путь «из варяг в греки»", "Янтарный путь", "Великий шёлковый путь"],
+            correct: 1,
+            explanation: "Путь «из варяг в греки» был главной экономической и культурной артерией Древней Руси."
+        },
+        {
+            question: "Кто из правителей Руси первым лично принял христианство (в 957 году)?",
+            options: ["Княгиня Ольга", "Князь Владимир", "Князь Ярослав Мудрый", "Князь Святослав"],
+            correct: 0,
+            explanation: "Княгиня Ольга посетила Константинополь и приняла крещение, став первым христианским правителем на Руси."
+        },
+        {
+            question: "В каком году был заключён первый письменный международный договор Руси с Византией?",
+            options: ["862 год", "907 год", "911 год", "944 год"],
+            correct: 2,
+            explanation: "Договор 911 года, заключённый князем Олегом, является первым дошедшим до нас письменным международным договором Древней Руси."
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('total-q').textContent = questions.length;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('current-q').textContent = currentQuestion + 1;
+        document.getElementById('question-text').textContent = q.question;
+        
+        // Обновление прогресс-бара
+        const progress = ((currentQuestion) / questions.length) * 100;
+        document.getElementById('progress-bar').style.width = progress + '%';
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        document.getElementById('feedback').className = 'quiz-feedback';
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('next-btn').disabled = true;
+
+        q.options.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'quiz-option';
+            btn.textContent = option;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, selectedBtn) {
+        const q = questions[currentQuestion];
+        const options = document.querySelectorAll('.quiz-option');
+        const feedback = document.getElementById('feedback');
+
+        // Блокируем все кнопки
+        options.forEach(btn => btn.classList.add('disabled'));
+        options.forEach(btn => btn.onclick = null);
+
+        if (selectedIndex === q.correct) {
+            selectedBtn.classList.add('correct');
+            score++;
+            feedback.innerHTML = `<strong>Верно!</strong> ${q.explanation}`;
+            feedback.style.backgroundColor = '#d4edda';
+            feedback.style.color = '#155724';
+            feedback.style.border = '1px solid #c3e6cb';
+        } else {
+            selectedBtn.classList.add('incorrect');
+            options[q.correct].classList.add('correct'); // Показываем правильный ответ
+            feedback.innerHTML = `<strong>Неверно.</strong> ${q.explanation}`;
+            feedback.style.backgroundColor = '#f8d7da';
+            feedback.style.color = '#721c24';
+            feedback.style.border = '1px solid #f5c6cb';
+        }
+
+        feedback.classList.add('show');
+        document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('final-score').textContent = `${score} из ${questions.length}`;
+        
+        const message = document.getElementById('result-message');
+        if (score === questions.length) {
+            message.textContent = "Великолепно! Вы настоящий знаток истории Древней Руси!";
+        } else if (score >= questions.length * 0.7) {
+            message.textContent = "Отличный результат! Вы хорошо знаете материал, но есть куда расти.";
+        } else if (score >= questions.length * 0.4) {
+            message.textContent = "Неплохо, но рекомендуем перечитать страницы сайта и попробовать снова.";
+        } else {
+            message.textContent = "Кажется, стоит внимательнее изучить материалы сайта. Попробуйте ещё раз!";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
